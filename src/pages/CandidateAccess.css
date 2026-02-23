@@ -1,0 +1,181 @@
+.page {
+  padding: 2.5rem 0 3rem;
+}
+
+.page__header {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.page__title {
+  margin: 0 0 0.5rem;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.page__subtitle {
+  margin: 0 0 1rem;
+  font-size: 1.125rem;
+  color: var(--text-muted);
+}
+
+.candidate-access__back {
+  font-size: 0.9375rem;
+  color: var(--secondary);
+}
+
+.candidate-access__back:hover {
+  text-decoration: underline;
+}
+
+.access-card {
+  position: relative;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 2rem;
+  background: var(--background);
+  border-radius: 12px;
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--border);
+}
+
+.access-card__accent {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 64px;
+  background: var(--secondary);
+  border-radius: 12px 0 0 0;
+}
+
+.access-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.access-form__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.access-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.access-form__label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.access-form__required {
+  color: var(--error);
+}
+
+.access-form__hint {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
+.access-form__input {
+  padding: 0.6rem 0.75rem;
+  font-size: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  background: var(--background);
+  transition: border-color 0.2s;
+  font-family: inherit;
+}
+
+.access-form__input::placeholder {
+  color: var(--text-muted);
+}
+
+.access-form__input:hover {
+  border-color: #94A3B8;
+}
+
+.access-form__input:focus {
+  border-color: var(--secondary);
+  outline: none;
+}
+
+.access-form__input--error {
+  border-color: var(--error);
+}
+
+.access-form__input--error:focus {
+  border-color: var(--error);
+}
+
+.access-form__file {
+  padding: 0.5rem 0;
+  cursor: pointer;
+}
+
+.access-form__textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.access-form__select {
+  cursor: pointer;
+  appearance: auto;
+}
+
+.access-form__error {
+  font-size: 0.8125rem;
+  color: var(--error);
+}
+
+.access-form__checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.access-form__checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9375rem;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.access-form__terms-label {
+  font-weight: 500;
+}
+
+.access-form__checkbox {
+  width: 1.125rem;
+  height: 1.125rem;
+  accent-color: var(--secondary);
+  cursor: pointer;
+}
+
+.access-form__submit {
+  margin-top: 0.5rem;
+}
+
+@media (max-width: 640px) {
+  .page__title {
+    font-size: 1.5rem;
+  }
+
+  .access-form__row {
+    grid-template-columns: 1fr;
+  }
+
+  .access-card {
+    padding: 1.5rem;
+  }
+}

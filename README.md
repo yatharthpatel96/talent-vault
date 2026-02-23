@@ -1,49 +1,69 @@
 # Talent Vault
 
-A brief description of your project.
+Semiconductor Career & Research Hub — connect candidates, employers, and professors in the world of chips.
 
-## Getting Started.
+## Tech Stack
 
-### Prerequisites
+- React 18 (Vite)
+- React Router v6
+- Plain CSS (global + component-level)
 
-- List any required tools or runtimes (e.g. Node.js, Python)
-- How to install them
-
-### Installation
+## Run instructions
 
 ```bash
-# Clone the repository
-git clone <repository-url>
-cd talent-vault
-
-# Install dependencies (example)
 npm install
+npm run dev
 ```
 
-### Usage.
+Then open the URL shown in the terminal (e.g. `http://localhost:5173`).
+
+### Other commands
 
 ```bash
-# Run the project (example)
-npm start
+npm run build   # production build
+npm run preview # preview production build
 ```
 
-## Project Structure
+## Project structure
 
 ```
 .
-├── src/
+├── index.html
+├── package.json
+├── vite.config.js
 ├── public/
+│   └── vite.svg
+├── src/
+│   ├── main.jsx
+│   ├── App.jsx
+│   ├── styles/
+│   │   └── global.css
+│   ├── components/
+│   │   ├── Navbar.jsx
+│   │   ├── Navbar.css
+│   │   ├── Footer.jsx
+│   │   └── Footer.css
+│   └── pages/
+│       ├── Home.jsx / Home.css
+│       ├── Candidate.jsx / Candidate.css
+│       ├── Employer.jsx / Employer.css
+│       ├── Professor.jsx / Professor.css
+│       ├── Resources.jsx / Resources.css
+│       └── Login.jsx / Login.css
 └── README.md
 ```
 
-## Contributing
+## Routes
 
-1. Fork the repo
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+| Path        | Page      |
+|------------|-----------|
+| `/`        | Home      |
+| `/candidate` | Candidate |
+| `/employer`  | Employer  |
+| `/professor` | Professor |
+| `/resources` | Resources |
+| `/login`     | Login     |
 
 ## License
 
-This project is licensed under the MIT License.
+MIT.
