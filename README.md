@@ -2,7 +2,7 @@
 
 A brief description of your project.
 
-## Getting Started
+## Getting Started.
 
 ### Prerequisites
 
