@@ -20,7 +20,7 @@ cd talent-vault
 npm install
 ```
 
-### Usage
+### Usage.
 
 ```bash
 # Run the project (example)
