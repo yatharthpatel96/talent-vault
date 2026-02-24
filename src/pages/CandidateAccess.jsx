@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { supabase } from '../lib/supabase';
 import './CandidateAccess.css';
 
 const UNIVERSITIES = [
@@ -28,6 +29,8 @@ function CandidateAccess() {
     termsAccepted: false,
   });
   const [errors, setErrors] = useState({});
+  const [submitStatus, setSubmitStatus] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
 
   function handleChange(e) {
     const { name, type, value, checked, files } = e.target;
@@ -52,8 +55,9 @@ function CandidateAccess() {
     if (errors.courses) setErrors((prev) => ({ ...prev, courses: null }));
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
+    setSubmitStatus(null);
     const next = {};
     if (!form.resume) next.resume = 'Resume is required';
     if (!form.firstName.trim()) next.firstName = 'First name is required';
@@ -67,7 +71,50 @@ function CandidateAccess() {
     if (!form.termsAccepted) next.termsAccepted = 'You must accept the terms and conditions';
     setErrors(next);
     if (Object.keys(next).length > 0) return;
-    // Success: no backend, just reset for demo
+
+    if (!supabase) {
+      setSubmitStatus({ type: 'error', message: 'Supabase is not configured.' });
+      return;
+    }
+
+    setSubmitting(true);
+    let resumeUrl = null;
+    if (form.resume) {
+      const fileExt = form.resume.name.split('.').pop();
+      const filePath = `${form.email.trim().replace(/[^a-zA-Z0-9@._-]/g, '_')}-${Date.now()}.${fileExt}`;
+      const { error: uploadError } = await supabase.storage
+        .from('resumes')
+        .upload(filePath, form.resume, { upsert: false });
+      if (uploadError) {
+        setSubmitStatus({ type: 'error', message: uploadError.message || 'Resume upload failed.' });
+        setSubmitting(false);
+        return;
+      }
+      const { data: urlData } = supabase.storage.from('resumes').getPublicUrl(filePath);
+      resumeUrl = urlData.publicUrl;
+    }
+
+    const { error } = await supabase.from('candidate_access_requests').insert({
+      first_name: form.firstName.trim(),
+      last_name: form.lastName.trim(),
+      email: form.email.trim(),
+      phone: form.phone.trim(),
+      message: form.message.trim(),
+      usa_citizen: form.usaCitizen === 'yes',
+      university: form.university,
+      courses: form.courses,
+      terms_accepted: form.termsAccepted,
+      resume_url: resumeUrl,
+    });
+
+    if (error) {
+      setSubmitStatus({ type: 'error', message: error.message || 'Submission failed.' });
+      setSubmitting(false);
+      return;
+    }
+
+    setSubmitting(false);
+    setSubmitStatus({ type: 'success', message: 'Your request has been submitted.' });
     setForm({
       resume: null,
       firstName: '',
@@ -268,7 +315,14 @@ function CandidateAccess() {
               {errors.termsAccepted && <span id="terms-error" className="access-form__error" role="alert">{errors.termsAccepted}</span>}
             </div>
 
-            <button type="submit" className="btn access-form__submit">Submit</button>
+            <button type="submit" className="btn access-form__submit" disabled={submitting}>
+              {submitting ? 'Saving...' : 'Submit'}
+            </button>
+            {submitStatus && (
+              <p className={`access-form__status access-form__status--${submitStatus.type}`} role="alert">
+                {submitStatus.message}
+              </p>
+            )}
           </form>
         </div>
       </div>

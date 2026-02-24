@@ -1,0 +1,15 @@
+.page {
+  padding: 2.5rem 0 3rem;
+}
+
+.dashboard__text {
+  margin: 0;
+  font-size: 1.25rem;
+  color: var(--text);
+}
+
+.dashboard-page .container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 1.25rem;
+}

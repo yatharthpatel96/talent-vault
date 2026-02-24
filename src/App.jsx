@@ -8,6 +8,8 @@ import Professor from './pages/Professor';
 import Resources from './pages/Resources';
 import Login from './pages/Login';
 import CandidateAccess from './pages/CandidateAccess';
+import AccessRequests from './pages/AccessRequests';
+import Dashboard from './pages/Dashboard';
 
 import './components/Navbar.css';
 import './components/Footer.css';
@@ -25,6 +27,8 @@ function App() {
           <Route path="/professor" element={<Professor />} />
           <Route path="/resources" element={<Resources />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/admin/access-requests" element={<AccessRequests />} />
+          <Route path="/dashboard/:role?" element={<Dashboard />} />
         </Routes>
       </main>
       <Footer />
