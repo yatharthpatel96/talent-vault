@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { supabase } from '../lib/supabase';
 import './Login.css';
 
 const LOGIN_TYPES = [
@@ -9,24 +10,37 @@ const LOGIN_TYPES = [
 ];
 
 function Login() {
+  const navigate = useNavigate();
   const [loginType, setLoginType] = useState('candidate');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState({});
+  const [authError, setAuthError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const titleLabel = LOGIN_TYPES.find((t) => t.id === loginType)?.label ?? 'Candidate';
   const formTitle = `${titleLabel} Login`;
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
+    setAuthError(null);
     const next = {};
     if (!email.trim()) next.email = 'Email is required';
     if (!password) next.password = 'Password is required';
     setErrors(next);
     if (Object.keys(next).length > 0) return;
-    setEmail('');
-    setPassword('');
-    setErrors({});
+    if (!supabase) {
+      setAuthError('Supabase is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to .env');
+      return;
+    }
+    setLoading(true);
+    const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+    setLoading(false);
+    if (error) {
+      setAuthError('Invalid email or password');
+      return;
+    }
+    navigate(`/dashboard/${loginType}`, { replace: true });
   }
 
   return (
@@ -55,6 +69,11 @@ function Login() {
           <div className="login-card">
             <div className="login-card__accent" aria-hidden="true" />
             <h2 className="login-card__title">{formTitle}</h2>
+            {authError && (
+              <p className="login-card__auth-error" role="alert">
+                {authError}
+              </p>
+            )}
             <form className="login-card__form" onSubmit={handleSubmit} noValidate>
               <div className="login-card__field">
                 <label htmlFor="login-email" className="login-card__label">Email</label>
@@ -100,7 +119,9 @@ function Login() {
                   </span>
                 )}
               </div>
-              <button type="submit" className="btn login-card__btn">Login</button>
+              <button type="submit" className="btn login-card__btn" disabled={loading}>
+                {loading ? 'Signing in...' : 'Login'}
+              </button>
               <p className="login-card__footer">
                 {loginType === 'candidate' ? (
                   <>New here? <Link to="/candidate/access">Create an account</Link></>

@@ -23,6 +23,9 @@ function Navbar() {
           <NavLink to="/resources" className={({ isActive }) => `navbar__link ${isActive ? 'navbar__link--active' : ''}`}>
             Resources
           </NavLink>
+          <NavLink to="/admin/access-requests" className={({ isActive }) => `navbar__link ${isActive ? 'navbar__link--active' : ''}`}>
+            Access requests
+          </NavLink>
           <NavLink to="/login" className={({ isActive }) => `navbar__link ${isActive ? 'navbar__link--active' : ''}`}>
             Login
           </NavLink>

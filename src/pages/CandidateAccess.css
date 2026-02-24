@@ -166,6 +166,19 @@
   margin-top: 0.5rem;
 }
 
+.access-form__status {
+  margin: 1rem 0 0;
+  font-size: 0.9375rem;
+}
+
+.access-form__status--success {
+  color: #059669;
+}
+
+.access-form__status--error {
+  color: var(--error);
+}
+
 @media (max-width: 640px) {
   .page__title {
     font-size: 1.5rem;
