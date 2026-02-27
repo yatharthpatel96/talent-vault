@@ -1,0 +1,149 @@
+.create-account.page {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  background: #f8fafc;
+}
+
+.create-account__card {
+  width: 100%;
+  max-width: 420px;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(11, 31, 59, 0.08);
+  border: 1px solid #e2e8f0;
+  padding: 1.75rem 1.5rem;
+}
+
+.create-account__title {
+  margin: 0 0 0.25rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0B1F3B;
+}
+
+.create-account__muted {
+  margin: 0 0 1.25rem;
+  font-size: 0.9375rem;
+  color: #475569;
+}
+
+.create-account__form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.create-account__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.create-account__label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #0F172A;
+}
+
+.create-account__required {
+  color: #dc2626;
+}
+
+.create-account__input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  color: #0F172A;
+  background: #fff;
+  font-family: inherit;
+}
+
+.create-account__input:read-only {
+  background: #f8fafc;
+  color: #475569;
+}
+
+.create-account__input--error {
+  border-color: #dc2626;
+}
+
+.create-account__input:focus {
+  outline: none;
+  border-color: #3B82F6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.create-account__error {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: #dc2626;
+}
+
+.create-account__error--submit {
+  margin-top: 0.25rem;
+}
+
+.create-account__submit {
+  width: 100%;
+  padding: 0.875rem 1.25rem;
+  margin-top: 0.25rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  background: #3B82F6;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.create-account__submit:hover:not(:disabled) {
+  background: #2563eb;
+}
+
+.create-account__submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.create-account__success {
+  text-align: center;
+  padding: 0.5rem 0;
+}
+
+.create-account__success-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 1rem;
+  background: #22c55e;
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: 700;
+  border-radius: 50%;
+}
+
+.create-account__success-text {
+  margin: 0 0 1rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #0F172A;
+}
+
+.create-account__link {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: #3B82F6;
+  text-decoration: none;
+}
+
+.create-account__link:hover {
+  text-decoration: underline;
+}

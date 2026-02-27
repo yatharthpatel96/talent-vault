@@ -22,6 +22,37 @@
   color: #475569;
 }
 
+.access-requests__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-bottom: 1rem;
+}
+
+.access-requests__tab {
+  padding: 0.6rem 1rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: #0B1F3B;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: color 0.2s, background 0.2s, border-color 0.2s;
+}
+
+.access-requests__tab:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.access-requests__tab--active {
+  color: #fff;
+  background: #3B82F6;
+  border-color: #3B82F6;
+}
+
 .access-requests__search-wrap {
   max-width: 400px;
 }

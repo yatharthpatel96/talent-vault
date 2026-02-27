@@ -4,6 +4,23 @@ import Toast from '../components/Toast';
 import './AccessRequests.css';
 
 const MESSAGE_TRUNCATE_LEN = 120;
+const TABS = [
+  { id: 'candidate', label: 'Candidate requests' },
+  { id: 'professor', label: 'Professor requests' },
+  { id: 'employer', label: 'Employer requests' },
+];
+
+const accessTable = (tab) => {
+  if (tab === 'candidate') return 'candidate_access_requests';
+  if (tab === 'professor') return 'professor_access_requests';
+  return 'employer_access_requests';
+};
+
+const approvedTable = (tab) => {
+  if (tab === 'candidate') return 'candidate_approved_requests';
+  if (tab === 'professor') return 'professor_approved_requests';
+  return 'employer_approved_requests';
+};
 
 function formatDate(iso) {
   if (!iso) return '—';
@@ -18,6 +35,7 @@ function formatDate(iso) {
 }
 
 function AccessRequests() {
+  const [activeTab, setActiveTab] = useState('candidate');
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -35,8 +53,9 @@ function AccessRequests() {
     }
     setError(null);
     setLoading(true);
+    const table = accessTable(activeTab);
     const { data, error: err } = await supabaseClient
-      .from('candidate_access_requests')
+      .from(table)
       .select('*')
       .eq('pending', true)
       .order('created_at', { ascending: false });
@@ -47,7 +66,7 @@ function AccessRequests() {
       return;
     }
     setRequests(data ?? []);
-  }, []);
+  }, [activeTab]);
 
   useEffect(() => {
     fetchRequests();
@@ -59,9 +78,33 @@ function AccessRequests() {
         const name = `${(r.first_name || '').toLowerCase()} ${(r.last_name || '').toLowerCase()}`;
         const email = (r.email || '').toLowerCase();
         const university = (r.university || '').toLowerCase();
-        return name.includes(s) || email.includes(s) || university.includes(s);
+        const company = (r.company || '').toLowerCase();
+        return name.includes(s) || email.includes(s) || university.includes(s) || company.includes(s);
       })
     : requests;
+
+  const callSendInvite = async (email, role, approvedRequestId) => {
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+    if (!supabaseUrl || !anonKey) return false;
+    try {
+      const res = await fetch(`${supabaseUrl}/functions/v1/send-signup-invite`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${anonKey}`,
+        },
+        body: JSON.stringify({
+          email,
+          role,
+          approved_request_id: approvedRequestId,
+        }),
+      });
+      return res.ok;
+    } catch (_) {
+      return false;
+    }
+  };
 
   const handleApprove = async (row) => {
     if (!supabaseClient || actionId) return;
@@ -69,23 +112,51 @@ function AccessRequests() {
     const previous = [...requests];
     setRequests((prev) => prev.filter((r) => r.id !== row.id));
 
-    const payload = {
-      original_request_id: row.id,
-      first_name: row.first_name,
-      last_name: row.last_name,
-      email: row.email,
-      phone: row.phone,
-      message: row.message,
-      usa_citizen: row.usa_citizen,
-      university: row.university,
-      courses: row.courses ?? [],
-      terms_accepted: row.terms_accepted ?? true,
-      resume_url: row.resume_url ?? null,
-    };
+    const tableAccess = accessTable(activeTab);
+    const tableApproved = approvedTable(activeTab);
 
-    const { error: insertErr } = await supabaseClient
-      .from('candidate_approved_requests')
-      .insert(payload);
+    let payload;
+    if (activeTab === 'candidate') {
+      payload = {
+        original_request_id: row.id,
+        first_name: row.first_name,
+        last_name: row.last_name,
+        email: row.email,
+        phone: row.phone,
+        message: row.message,
+        usa_citizen: row.usa_citizen,
+        university: row.university,
+        courses: row.courses ?? [],
+        terms_accepted: row.terms_accepted ?? true,
+        resume_url: row.resume_url ?? null,
+      };
+    } else if (activeTab === 'professor') {
+      payload = {
+        original_request_id: row.id,
+        first_name: row.first_name,
+        last_name: row.last_name,
+        email: row.email,
+        phone: row.phone,
+        university: row.university,
+        terms_accepted: row.terms_accepted ?? true,
+      };
+    } else {
+      payload = {
+        original_request_id: row.id,
+        first_name: row.first_name,
+        last_name: row.last_name,
+        email: row.email,
+        phone: row.phone,
+        company: row.company,
+        terms_accepted: row.terms_accepted ?? true,
+      };
+    }
+
+    const { data: inserted, error: insertErr } = await supabaseClient
+      .from(tableApproved)
+      .insert(payload)
+      .select('id')
+      .single();
 
     if (insertErr) {
       setRequests(previous);
@@ -95,7 +166,7 @@ function AccessRequests() {
     }
 
     const { error: deleteErr } = await supabaseClient
-      .from('candidate_access_requests')
+      .from(tableAccess)
       .delete()
       .eq('id', row.id);
 
@@ -106,7 +177,13 @@ function AccessRequests() {
       return;
     }
 
-    setToast({ type: 'success', message: 'Request approved.' });
+    const inviteSent = await callSendInvite(row.email, activeTab, inserted?.id);
+    setToast({
+      type: 'success',
+      message: inviteSent
+        ? 'Request approved and sign-up link sent to email.'
+        : 'Request approved; invite could not be sent.',
+    });
     setActionId(null);
   };
 
@@ -117,10 +194,8 @@ function AccessRequests() {
     const previous = [...requests];
     setRequests((prev) => prev.filter((r) => r.id !== row.id));
 
-    const { error: deleteErr } = await supabaseClient
-      .from('candidate_access_requests')
-      .delete()
-      .eq('id', row.id);
+    const table = accessTable(activeTab);
+    const { error: deleteErr } = await supabaseClient.from(table).delete().eq('id', row.id);
 
     if (deleteErr) {
       setRequests(previous);
@@ -135,18 +210,110 @@ function AccessRequests() {
     setExpandedId((prev) => (prev === id ? null : id));
   };
 
+  const renderCardContent = (req) => {
+    const base = (
+      <>
+        <h2 className="access-requests__card-name">
+          {req.first_name} {req.last_name}
+        </h2>
+        <p className="access-requests__card-meta">
+          <a href={`mailto:${req.email}`}>{req.email}</a>
+          {req.phone && ` · ${req.phone}`}
+        </p>
+      </>
+    );
+    if (activeTab === 'candidate') {
+      return (
+        <>
+          {base}
+          {req.university && <p className="access-requests__card-meta">{req.university}</p>}
+          {typeof req.usa_citizen === 'boolean' && (
+            <div className="access-requests__card-badges">
+              <span className={`access-requests__badge access-requests__badge--${req.usa_citizen ? 'yes' : 'no'}`}>
+                USA Citizen: {req.usa_citizen ? 'Yes' : 'No'}
+              </span>
+            </div>
+          )}
+          {Array.isArray(req.courses) && req.courses.length > 0 && (
+            <div className="access-requests__chips">
+              {req.courses.map((c) => (
+                <span key={c} className="access-requests__chip">{c}</span>
+              ))}
+            </div>
+          )}
+          {req.message && (
+            <div className="access-requests__message">
+              {req.message.length <= MESSAGE_TRUNCATE_LEN || expandedId === req.id ? (
+                <>
+                  {req.message}
+                  {req.message.length > MESSAGE_TRUNCATE_LEN && (
+                    <button type="button" className="access-requests__message-toggle" onClick={() => toggleExpanded(req.id)}>Show less</button>
+                  )}
+                </>
+              ) : (
+                <>
+                  {req.message.slice(0, MESSAGE_TRUNCATE_LEN)}…
+                  <button type="button" className="access-requests__message-toggle" onClick={() => toggleExpanded(req.id)}>Show more</button>
+                </>
+              )}
+            </div>
+          )}
+          <p className="access-requests__card-meta access-requests__card-meta--muted">
+            Terms accepted: {req.terms_accepted ? 'Yes' : 'No'}
+          </p>
+          {req.resume_url && (
+            <p className="access-requests__card-meta">
+              <a href={req.resume_url} target="_blank" rel="noopener noreferrer" className="access-requests__resume-link">View resume</a>
+            </p>
+          )}
+        </>
+      );
+    }
+    if (activeTab === 'professor') {
+      return (
+        <>
+          {base}
+          {req.university && <p className="access-requests__card-meta">{req.university}</p>}
+          <p className="access-requests__card-meta access-requests__card-meta--muted">
+            Terms accepted: {req.terms_accepted ? 'Yes' : 'No'}
+          </p>
+        </>
+      );
+    }
+    return (
+      <>
+        {base}
+        {req.company && <p className="access-requests__card-meta">{req.company}</p>}
+        <p className="access-requests__card-meta access-requests__card-meta--muted">
+          Terms accepted: {req.terms_accepted ? 'Yes' : 'No'}
+        </p>
+      </>
+    );
+  };
+
   return (
     <div className="access-requests page">
       <header className="access-requests__header">
         <h1 className="access-requests__title">Access Requests</h1>
-        <p className="access-requests__subtitle">
-          Pending ({requests.length})
-        </p>
+        <p className="access-requests__subtitle">Pending ({requests.length})</p>
+        <div className="access-requests__tabs">
+          {TABS.map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              className={`access-requests__tab ${activeTab === tab.id ? 'access-requests__tab--active' : ''}`}
+              onClick={() => setActiveTab(tab.id)}
+              aria-pressed={activeTab === tab.id}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
         <div className="access-requests__search-wrap">
           <input
             type="search"
             className="access-requests__search"
-            placeholder="Search by name, email, or university..."
+            placeholder="Search by name, email, university or company..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             aria-label="Search requests"
@@ -155,9 +322,7 @@ function AccessRequests() {
       </header>
 
       {error && (
-        <div className="access-requests__error" role="alert">
-          {error}
-        </div>
+        <div className="access-requests__error" role="alert">{error}</div>
       )}
 
       {loading ? (
@@ -174,91 +339,13 @@ function AccessRequests() {
         <div className="access-requests__grid">
           {filtered.length === 0 ? (
             <p className="access-requests__empty">
-              {requests.length === 0
-                ? 'No pending requests.'
-                : 'No requests match your search.'}
+              {requests.length === 0 ? 'No pending requests.' : 'No requests match your search.'}
             </p>
           ) : (
             filtered.map((req) => (
-              <article
-                key={req.id}
-                className="access-requests__card"
-                data-id={req.id}
-              >
-                <h2 className="access-requests__card-name">
-                  {req.first_name} {req.last_name}
-                </h2>
-                <p className="access-requests__card-meta">
-                  <a href={`mailto:${req.email}`}>{req.email}</a>
-                  {req.phone && ` · ${req.phone}`}
-                </p>
-                <p className="access-requests__card-meta">
-                  {req.university}
-                </p>
-                <div className="access-requests__card-badges">
-                  <span
-                    className={`access-requests__badge access-requests__badge--${req.usa_citizen ? 'yes' : 'no'}`}
-                  >
-                    USA Citizen: {req.usa_citizen ? 'Yes' : 'No'}
-                  </span>
-                </div>
-                {Array.isArray(req.courses) && req.courses.length > 0 && (
-                  <div className="access-requests__chips">
-                    {req.courses.map((c) => (
-                      <span key={c} className="access-requests__chip">
-                        {c}
-                      </span>
-                    ))}
-                  </div>
-                )}
-                {req.message && (
-                  <div className="access-requests__message">
-                    {req.message.length <= MESSAGE_TRUNCATE_LEN ||
-                     expandedId === req.id ? (
-                      <>
-                        {req.message}
-                        {req.message.length > MESSAGE_TRUNCATE_LEN && (
-                          <button
-                            type="button"
-                            className="access-requests__message-toggle"
-                            onClick={() => toggleExpanded(req.id)}
-                          >
-                            Show less
-                          </button>
-                        )}
-                      </>
-                    ) : (
-                      <>
-                        {req.message.slice(0, MESSAGE_TRUNCATE_LEN)}…
-                        <button
-                          type="button"
-                          className="access-requests__message-toggle"
-                          onClick={() => toggleExpanded(req.id)}
-                        >
-                          Show more
-                        </button>
-                      </>
-                    )}
-                  </div>
-                )}
-                <p className="access-requests__card-meta access-requests__card-meta--muted">
-                  Terms accepted: {req.terms_accepted ? 'Yes' : 'No'}
-                </p>
-                {req.resume_url && (
-                  <p className="access-requests__card-meta">
-                    <a
-                      href={req.resume_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="access-requests__resume-link"
-                    >
-                      View resume
-                    </a>
-                  </p>
-                )}
-                <p className="access-requests__card-date">
-                  {formatDate(req.created_at)}
-                </p>
+              <article key={req.id} className="access-requests__card" data-id={req.id}>
+                {renderCardContent(req)}
+                <p className="access-requests__card-date">{formatDate(req.created_at)}</p>
                 <div className="access-requests__card-actions">
                   <button
                     type="button"
@@ -286,36 +373,16 @@ function AccessRequests() {
       )}
 
       {removeConfirm && (
-        <div
-          className="access-requests__modal-backdrop"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="remove-confirm-title"
-        >
+        <div className="access-requests__modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="remove-confirm-title">
           <div className="access-requests__modal">
-            <h2 id="remove-confirm-title" className="access-requests__modal-title">
-              Remove request?
-            </h2>
+            <h2 id="remove-confirm-title" className="access-requests__modal-title">Remove request?</h2>
             <p className="access-requests__modal-text">
-              This will permanently remove the request for{' '}
-              <strong>{removeConfirm.first_name} {removeConfirm.last_name}</strong>.
+              This will permanently remove the request for <strong>{removeConfirm.first_name} {removeConfirm.last_name}</strong>.
               This action cannot be undone.
             </p>
             <div className="access-requests__modal-actions">
-              <button
-                type="button"
-                className="access-requests__btn access-requests__btn--remove"
-                onClick={() => handleRemove(removeConfirm)}
-              >
-                Remove
-              </button>
-              <button
-                type="button"
-                className="access-requests__btn access-requests__btn--secondary"
-                onClick={() => setRemoveConfirm(null)}
-              >
-                Cancel
-              </button>
+              <button type="button" className="access-requests__btn access-requests__btn--remove" onClick={() => handleRemove(removeConfirm)}>Remove</button>
+              <button type="button" className="access-requests__btn access-requests__btn--secondary" onClick={() => setRemoveConfirm(null)}>Cancel</button>
             </div>
           </div>
         </div>
@@ -323,11 +390,7 @@ function AccessRequests() {
 
       {toast && (
         <div className="access-requests__toast-wrap">
-          <Toast
-            message={toast.message}
-            type={toast.type}
-            onClose={() => setToast(null)}
-          />
+          <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />
         </div>
       )}
     </div>

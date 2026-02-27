@@ -8,4 +8,6 @@ if (supabaseUrl && supabaseAnonKey) {
   supabase = createClient(supabaseUrl, supabaseAnonKey);
 }
 
-export { supabase };
+const hasSupabaseConfig = Boolean(supabaseUrl && supabaseAnonKey);
+
+export { supabase, hasSupabaseConfig };
