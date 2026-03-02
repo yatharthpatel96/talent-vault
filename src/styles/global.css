@@ -1,18 +1,15 @@
-/* ===== Theme (must follow everywhere) ===== */
 :root {
-  --primary: #0B1F3B;
-  --secondary: #3B82F6;
-  --background: #FFFFFF;
+  --navy: #0B1F3B;
+  --white: #FFFFFF;
+  --sky: #3B82F6;
+  --sky-light: #93C5FD;
   --text: #0F172A;
   --text-muted: #475569;
-  --card-shadow: 0 2px 12px rgba(11, 31, 59, 0.08);
-  --card-shadow-hover: 0 8px 24px rgba(11, 31, 59, 0.12);
   --border: #E2E8F0;
   --error: #DC2626;
-  --max-width: 1100px;
+  --card-shadow: 0 2px 12px rgba(11, 31, 59, 0.08);
 }
 
-/* ===== Reset & base ===== */
 *,
 *::before,
 *::after {
@@ -25,85 +22,99 @@ html {
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-  background: var(--background);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+  background: var(--white);
   color: var(--text);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-img {
-  max-width: 100%;
-  height: auto;
-}
-
-/* ===== Layout ===== */
 .app {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
 
-.main {
-  flex: 1;
+a {
+  color: var(--sky);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
 }
 
 .container {
   width: 100%;
-  max-width: var(--max-width);
+  max-width: 1100px;
   margin: 0 auto;
   padding: 0 1.25rem;
 }
 
-/* ===== Buttons (secondary light blue + hover) ===== */
 .btn {
   display: inline-block;
-  padding: 0.75rem 1.5rem;
+  padding: 0.6rem 1.25rem;
   font-size: 1rem;
-  font-weight: 600;
-  color: white;
-  background: var(--secondary);
+  font-weight: 500;
+  color: var(--white);
+  background: var(--sky);
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: background 0.2s, transform 0.1s;
+  font-family: inherit;
 }
-
 .btn:hover {
-  background: #2563EB;
+  background: #2563eb;
+}
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.btn-secondary {
+  background: var(--white);
+  color: var(--navy);
+  border: 1px solid var(--border);
+}
+.btn-secondary:hover {
+  background: #f8fafc;
 }
 
-.btn:focus-visible {
-  outline: 2px solid var(--secondary);
-  outline-offset: 2px;
+input[type="text"],
+input[type="email"],
+input[type="password"],
+select,
+textarea {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  font-size: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  background: var(--white);
+  font-family: inherit;
+}
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--sky);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 0.35rem;
 }
 
-.btn:active {
-  transform: scale(0.98);
+.page-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--navy);
 }
-
-/* ===== Focus states (accessibility) ===== */
-a:focus-visible,
-button:focus-visible,
-input:focus-visible {
-  outline: 2px solid var(--secondary);
-  outline-offset: 2px;
-}
-
-/* ===== Utility ===== */
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
+.page-subtitle {
+  margin: 0 0 1.5rem;
+  font-size: 1rem;
+  color: var(--text-muted);
 }

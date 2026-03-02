@@ -1,41 +1,50 @@
-import './Professor.css';
+import { useState, useEffect } from "react";
+import { functionsUrl, getToken, getRole, anonKey } from "../lib/supabaseClient";
+import "./RolePage.css";
 
-function Professor() {
+export default function Professor() {
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const token = getToken();
+    if (!token) return;
+    fetch(`${functionsUrl}/get-profile`, {
+      headers: {
+        ...(anonKey && { Authorization: `Bearer ${anonKey}` }),
+        "X-User-Token": token,
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.error) setError(data.error);
+        else setProfile(data);
+      })
+      .catch(() => setError("Failed to load profile"))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const role = getRole();
+
   return (
-    <div className="page professor">
-      <div className="container">
-        <header className="page__header">
-          <h1 className="page__title">Professor</h1>
-          <p className="page__subtitle">
-            Research labs, collaborations, and student opportunities in semiconductors.
-          </p>
-        </header>
-        <div className="feature-grid">
-          <div className="feature-card">
-            <div className="feature-card__accent" aria-hidden="true" />
-            <h2 className="feature-card__title">Lab openings</h2>
-            <p className="feature-card__text">
-              Post PhD, MS, and internship positions in your VLSI and semiconductor lab.
-            </p>
-          </div>
-          <div className="feature-card">
-            <div className="feature-card__accent" aria-hidden="true" />
-            <h2 className="feature-card__title">Research collaborations</h2>
-            <p className="feature-card__text">
-              Connect with industry and other academics for joint projects and funding.
-            </p>
-          </div>
-          <div className="feature-card">
-            <div className="feature-card__accent" aria-hidden="true" />
-            <h2 className="feature-card__title">Publish and share resources</h2>
-            <p className="feature-card__text">
-              Share courses, slides, and publications with the semiconductor community.
-            </p>
-          </div>
+    <div className="role-page">
+      <h1 className="page-title">Professor</h1>
+      <p className="page-subtitle">Talent Vault — You are signed in as <strong>{role}</strong></p>
+      {loading && <p className="role-loading">Loading profile…</p>}
+      {error && <p className="role-error">{error}</p>}
+      {!loading && !error && profile && Object.keys(profile).length > 0 && (
+        <div className="role-profile">
+          <p><strong>Name:</strong> {profile.first_name} {profile.last_name}</p>
+          <p><strong>Email:</strong> {profile.email}</p>
+          {profile.phone && <p><strong>Phone:</strong> {profile.phone}</p>}
+          {profile.academic_institution && <p><strong>Institution:</strong> {profile.academic_institution}</p>}
+          {profile.specialty && <p><strong>Specialty:</strong> {profile.specialty}</p>}
         </div>
-      </div>
+      )}
+      {!loading && !error && (!profile || Object.keys(profile).length === 0) && (
+        <p className="role-muted">No profile details yet.</p>
+      )}
     </div>
   );
 }
-
-export default Professor;

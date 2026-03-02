@@ -1,41 +1,49 @@
-import './Candidate.css';
+import { useState, useEffect } from "react";
+import { functionsUrl, getToken, getRole, anonKey } from "../lib/supabaseClient";
+import "./RolePage.css";
 
-function Candidate() {
+export default function Candidate() {
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const token = getToken();
+    if (!token) return;
+    fetch(`${functionsUrl}/get-profile`, {
+      headers: {
+        ...(anonKey && { Authorization: `Bearer ${anonKey}` }),
+        "X-User-Token": token,
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.error) setError(data.error);
+        else setProfile(data);
+      })
+      .catch(() => setError("Failed to load profile"))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const role = getRole();
+
   return (
-    <div className="page candidate">
-      <div className="container">
-        <header className="page__header">
-          <h1 className="page__title">Candidate</h1>
-          <p className="page__subtitle">
-            Grow your career in semiconductor design, verification, and fabrication.
-          </p>
-        </header>
-        <div className="feature-grid">
-          <div className="feature-card">
-            <div className="feature-card__accent" aria-hidden="true" />
-            <h2 className="feature-card__title">Build your chip-design profile</h2>
-            <p className="feature-card__text">
-              Showcase RTL, verification, and physical design skills. Add projects and tools you use.
-            </p>
-          </div>
-          <div className="feature-card">
-            <div className="feature-card__accent" aria-hidden="true" />
-            <h2 className="feature-card__title">Track applications</h2>
-            <p className="feature-card__text">
-              Apply to roles and internships. Keep track of status and feedback in one place.
-            </p>
-          </div>
-          <div className="feature-card">
-            <div className="feature-card__accent" aria-hidden="true" />
-            <h2 className="feature-card__title">Showcase projects (Verilog / UVM / PDK)</h2>
-            <p className="feature-card__text">
-              Highlight design and verification projects. Link repos and documentation.
-            </p>
-          </div>
+    <div className="role-page">
+      <h1 className="page-title">Candidate</h1>
+      <p className="page-subtitle">Talent Vault — You are signed in as <strong>{role}</strong></p>
+      {loading && <p className="role-loading">Loading profile…</p>}
+      {error && <p className="role-error">{error}</p>}
+      {!loading && !error && profile && Object.keys(profile).length > 0 && (
+        <div className="role-profile">
+          <p><strong>Name:</strong> {profile.first_name} {profile.last_name}</p>
+          <p><strong>Email:</strong> {profile.email}</p>
+          {profile.phone && <p><strong>Phone:</strong> {profile.phone}</p>}
+          {profile.academic_institution && <p><strong>Institution:</strong> {profile.academic_institution}</p>}
         </div>
-      </div>
+      )}
+      {!loading && !error && (!profile || Object.keys(profile).length === 0) && (
+        <p className="role-muted">No profile details yet.</p>
+      )}
     </div>
   );
 }
-
-export default Candidate;

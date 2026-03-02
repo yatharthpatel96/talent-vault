@@ -1,50 +1,45 @@
-import { Routes, Route } from 'react-router-dom';
-import { hasSupabaseConfig } from './lib/supabase';
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
-import Home from './pages/Home';
-import Candidate from './pages/Candidate';
-import Employer from './pages/Employer';
-import Professor from './pages/Professor';
-import Resources from './pages/Resources';
-import Login from './pages/Login';
-import CandidateAccess from './pages/CandidateAccess';
-import AccessRequests from './pages/AccessRequests';
-import CreateAccount from './pages/CreateAccount';
-import Dashboard from './pages/Dashboard';
+import { Routes, Route, Navigate } from "react-router-dom";
+import { functionsUrl, getToken, getRole } from "./lib/supabaseClient";
+import Layout from "./components/Layout";
+import Login from "./pages/Login";
+import RequestAccess from "./pages/RequestAccess";
+import SetPassword from "./pages/SetPassword";
+import Admin from "./pages/Admin";
+import Candidate from "./pages/Candidate";
+import Professor from "./pages/Professor";
+import Employer from "./pages/Employer";
+import "./styles/global.css";
 
-import './components/Navbar.css';
-import './components/Footer.css';
+function Protected({ children, allowedRoles }) {
+  const token = getToken();
+  const role = getRole();
+  if (!token) return <Navigate to="/login" replace />;
+  if (allowedRoles && role && !allowedRoles.includes(role)) return <Navigate to={role === "admin" ? "/admin" : `/${role}`} replace />;
+  return children;
+}
 
 function App() {
-  if (!hasSupabaseConfig) {
+  if (!functionsUrl) {
     return (
-      <div className="app" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', textAlign: 'center' }}>
-        <p style={{ margin: 0, color: 'var(--text-muted, #475569)', maxWidth: '360px' }}>
-          Missing environment configuration (VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY). Please add them and reload.
-        </p>
+      <div className="app" style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem", textAlign: "center" }}>
+        <p style={{ margin: 0, color: "var(--text-muted)" }}>Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in .env</p>
       </div>
     );
   }
 
   return (
     <div className="app">
-      <Navbar />
-      <main className="main">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/candidate" element={<Candidate />} />
-          <Route path="/candidate/access" element={<CandidateAccess />} />
-          <Route path="/employer" element={<Employer />} />
-          <Route path="/professor" element={<Professor />} />
-          <Route path="/resources" element={<Resources />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/auth/create-account" element={<CreateAccount />} />
-          <Route path="/admin/access-requests" element={<AccessRequests />} />
-          <Route path="/dashboard/:role?" element={<Dashboard />} />
-        </Routes>
-      </main>
-      <Footer />
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/request-access" element={<RequestAccess />} />
+        <Route path="/set-password" element={<SetPassword />} />
+        <Route path="/admin" element={<Protected allowedRoles={["admin"]}><Layout><Admin /></Layout></Protected>} />
+        <Route path="/candidate" element={<Protected allowedRoles={["candidate"]}><Layout><Candidate /></Layout></Protected>} />
+        <Route path="/professor" element={<Protected allowedRoles={["professor"]}><Layout><Professor /></Layout></Protected>} />
+        <Route path="/employer" element={<Protected allowedRoles={["employer"]}><Layout><Employer /></Layout></Protected>} />
+        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
     </div>
   );
 }
