@@ -23,10 +23,15 @@ export default function RequestAccess() {
 
   useEffect(() => {
     if (!supabase) return;
-    supabase.from("roles").select("id, name").in("name", ["candidate", "professor", "employer"]).then(({ data }) => setRoles(data || []));
+    // Load roles from the database. We normalize to lowercase in code so this
+    // works even if names are stored as "Candidate", "candidate", etc.
+    supabase
+      .from("roles")
+      .select("id, name")
+      .then(({ data }) => setRoles(data || []));
   }, []);
 
-  const roleId = roles.find((r) => r.name === roleOption)?.id;
+  const roleId = roles.find((r) => r.name?.toLowerCase() === roleOption.toLowerCase())?.id;
 
   async function handleSubmit(e) {
     e.preventDefault();

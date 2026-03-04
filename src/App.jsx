@@ -8,6 +8,7 @@ import Admin from "./pages/Admin";
 import Candidate from "./pages/Candidate";
 import Professor from "./pages/Professor";
 import Employer from "./pages/Employer";
+import Home from "./pages/Home";
 import "./styles/global.css";
 
 function Protected({ children, allowedRoles }) {
@@ -30,6 +31,7 @@ function App() {
   return (
     <div className="app">
       <Routes>
+        <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/request-access" element={<RequestAccess />} />
         <Route path="/set-password" element={<SetPassword />} />
@@ -37,8 +39,7 @@ function App() {
         <Route path="/candidate" element={<Protected allowedRoles={["candidate"]}><Layout><Candidate /></Layout></Protected>} />
         <Route path="/professor" element={<Protected allowedRoles={["professor"]}><Layout><Professor /></Layout></Protected>} />
         <Route path="/employer" element={<Protected allowedRoles={["employer"]}><Layout><Employer /></Layout></Protected>} />
-        <Route path="/" element={<Navigate to="/login" replace />} />
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </div>
   );
