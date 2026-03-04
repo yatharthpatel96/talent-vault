@@ -38,7 +38,6 @@ export default function Candidate() {
           <p><strong>Name:</strong> {profile.first_name} {profile.last_name}</p>
           <p><strong>Email:</strong> {profile.email}</p>
           {profile.phone && <p><strong>Phone:</strong> {profile.phone}</p>}
-          {profile.academic_institution && <p><strong>Institution:</strong> {profile.academic_institution}</p>}
         </div>
       )}
       {!loading && !error && (!profile || Object.keys(profile).length === 0) && (

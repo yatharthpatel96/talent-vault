@@ -15,11 +15,59 @@ export default function RequestAccess() {
     specialty: "",
     organization: "",
     job_title: "",
+    terms_accepted: false,
   });
   const [resumeFile, setResumeFile] = useState(null);
+  const [videoFile, setVideoFile] = useState(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const MAX_VIDEO_BYTES = 30 * 1024 * 1024; // 30 MB for ~90 sec moderate quality
+  const MIN_VIDEO_SEC = 30;
+  const MAX_VIDEO_SEC = 90;
+
+  function getVideoDuration(file) {
+    return new Promise((resolve, reject) => {
+      const url = URL.createObjectURL(file);
+      const video = document.createElement("video");
+      video.preload = "metadata";
+      video.onloadedmetadata = () => {
+        URL.revokeObjectURL(url);
+        resolve(video.duration);
+      };
+      video.onerror = () => {
+        URL.revokeObjectURL(url);
+        reject(new Error("Could not read video"));
+      };
+      video.src = url;
+    });
+  }
+
+  async function handleVideoChange(e) {
+    const file = e.target.files?.[0] || null;
+    setVideoFile(file);
+    setError("");
+    if (!file) return;
+    if (file.size > MAX_VIDEO_BYTES) {
+      setError("Video must be under 30 MB and 30–90 seconds.");
+      setVideoFile(null);
+      e.target.value = "";
+      return;
+    }
+    try {
+      const duration = await getVideoDuration(file);
+      if (duration < MIN_VIDEO_SEC || duration > MAX_VIDEO_SEC) {
+        setError("Video must be between 30 and 90 seconds.");
+        setVideoFile(null);
+        e.target.value = "";
+      }
+    } catch {
+      setError("Could not read video. Use MP4 or WebM.");
+      setVideoFile(null);
+      e.target.value = "";
+    }
+  }
 
   useEffect(() => {
     if (!supabase) return;
@@ -45,8 +93,12 @@ export default function RequestAccess() {
       setError("First name, last name, and email are required.");
       return;
     }
-    if (roleOption === "candidate" && !form.academic_institution?.trim()) {
-      setError("Academic institution is required for candidates.");
+    if (roleOption === "candidate" && !form.terms_accepted) {
+      setError("You must accept the terms and conditions.");
+      return;
+    }
+    if (roleOption === "candidate" && !videoFile) {
+      setError("Intro video is required for candidates.");
       return;
     }
     if (roleOption === "professor") {
@@ -58,6 +110,11 @@ export default function RequestAccess() {
       if (!form.job_title?.trim()) { setError("Job title is required for employers."); return; }
     }
 
+    if (roleOption === "candidate" && videoFile && videoFile.size > MAX_VIDEO_BYTES) {
+      setError("Video must be under 30 MB and 30–90 seconds.");
+      return;
+    }
+
     setLoading(true);
     let resume_url = null;
     if (roleOption === "candidate" && resumeFile && supabase) {
@@ -66,6 +123,15 @@ export default function RequestAccess() {
       if (!upErr) {
         const { data: pub } = supabase.storage.from("resumes").getPublicUrl(name);
         resume_url = pub?.publicUrl ?? null;
+      }
+    }
+    let video_url = null;
+    if (roleOption === "candidate" && videoFile && supabase) {
+      const name = `${Date.now()}-${videoFile.name}`;
+      const { error: upErr } = await supabase.storage.from("candidate-videos").upload(name, videoFile, { upsert: false });
+      if (!upErr) {
+        const { data: pub } = supabase.storage.from("candidate-videos").getPublicUrl(name);
+        video_url = pub?.publicUrl ?? null;
       }
     }
 
@@ -86,8 +152,9 @@ export default function RequestAccess() {
       rejected: false,
     };
     if (roleOption === "candidate") {
-      payload.academic_institution = form.academic_institution?.trim() || "";
       payload.resume_url = resume_url;
+      payload.video_url = video_url;
+      payload.terms_accepted = !!form.terms_accepted;
     } else if (roleOption === "professor") {
       payload.academic_institution = form.academic_institution?.trim() || "";
       payload.specialty = form.specialty?.trim() || "";
@@ -147,9 +214,20 @@ export default function RequestAccess() {
           {roleOption === "candidate" && (
             <>
               <label>Resume</label>
-              <input type="file" accept=".pdf,.doc,.docx" onChange={(e) => setResumeFile(e.target.files?.[0] || null)} />
-              <label>Academic institution *</label>
-              <input type="text" value={form.academic_institution} onChange={(e) => setForm((f) => ({ ...f, academic_institution: e.target.value }))} required />
+              <input id="candidate-resume" type="file" accept=".pdf,.doc,.docx" onChange={(e) => setResumeFile(e.target.files?.[0] || null)} />
+              <label htmlFor="candidate-video">Intro video *</label>
+              <p className="request-access-hint">Required. 30–90 seconds, moderate quality, max 30 MB. MP4 or WebM.</p>
+              <input id="candidate-video" type="file" accept="video/mp4,video/webm" onChange={handleVideoChange} required aria-required="true" />
+              <div className="request-access-checkbox-wrap">
+                <input
+                  id="candidate-terms"
+                  type="checkbox"
+                  checked={form.terms_accepted}
+                  onChange={(e) => setForm((f) => ({ ...f, terms_accepted: e.target.checked }))}
+                  aria-required="true"
+                />
+                <label htmlFor="candidate-terms">I accept the terms and conditions *</label>
+              </div>
             </>
           )}
           {roleOption === "professor" && (

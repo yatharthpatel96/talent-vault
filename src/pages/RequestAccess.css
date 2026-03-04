@@ -29,6 +29,25 @@
 .request-access-card input[type="file"] {
   padding: 0.4rem;
 }
+.request-access-hint {
+  margin: 0.25rem 0 0.5rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+.request-access-checkbox-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+.request-access-checkbox-wrap input[type="checkbox"] {
+  margin: 0;
+  flex-shrink: 0;
+}
+.request-access-checkbox-wrap label {
+  margin-top: 0;
+  cursor: pointer;
+}
 .request-access-btn {
   width: 100%;
   margin-top: 1.5rem;
