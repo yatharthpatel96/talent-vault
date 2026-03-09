@@ -3,55 +3,6 @@ import { Link } from "react-router-dom";
 import "./Home.css";
 
 // Sample data for jobs and resources.
-// TODO: replace sampleJobs and sampleResources with API data (fetch/axios or Supabase)
-const sampleJobs = [
-  {
-    id: 1,
-    title: "Device Modeling Intern",
-    company: "NovaSilicon Labs",
-    location: "Tempe, AZ",
-    level: "Internship",
-  },
-  {
-    id: 2,
-    title: "Process Integration Engineer",
-    company: "QuantumFoundry",
-    location: "Hillsboro, OR",
-    level: "Mid-level",
-  },
-  {
-    id: 3,
-    title: "Analog Mixed-Signal Designer",
-    company: "PhotonEdge",
-    location: "Austin, TX",
-    level: "Senior",
-  },
-];
-
-const sampleResources = [
-  {
-    id: 1,
-    title: "Introduction to CMOS Fabrication",
-    topic: "Fabrication",
-    description:
-      "A gentle introduction to front-end and back-end-of-line process steps for modern CMOS.",
-  },
-  {
-    id: 2,
-    title: "Compact Modeling for Advanced Nodes",
-    topic: "Modeling",
-    description:
-      "How to build accurate, stable compact models for nanoscale devices.",
-  },
-  {
-    id: 3,
-    title: "Reliability in Automotive Semiconductors",
-    topic: "Reliability",
-    description:
-      "Key mechanisms and qualification flows for high-reliability automotive ICs.",
-  },
-];
-
 export default function Home() {
   return (
     <div className="home">
@@ -72,166 +23,147 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Candidate section */}
-        <section className="home-section" aria-labelledby="candidate-heading">
+        {/* Candidate section – now just the intro video */}
+        <section className="home-section" aria-labelledby="candidate-video-heading">
           <div className="container">
             <header className="home-section-header">
-              <h2 id="candidate-heading">Opportunities for candidates</h2>
-              <p>
-                Explore internships, entry-level and experienced roles across
-                device physics, design, EDA, and manufacturing.
-              </p>
+              <h2
+                id="candidate-video-heading"
+                className="home-section-title-primary"
+                onClick={() => {
+                  const video = document.getElementById("talentvault-video");
+                  if (video) {
+                    video.scrollIntoView({ behavior: "smooth", block: "center" });
+                  }
+                }}
+              >
+                WHAT IS TALENTVAULT
+              </h2>
             </header>
-            <div className="home-card-grid">
-              {sampleJobs.map((job) => (
-                <article key={job.id} className="home-card">
-                  <h3 className="home-card-title">{job.title}</h3>
-                  <p className="home-card-meta">
-                    {job.company} · {job.location}
-                  </p>
-                  <span className="home-card-pill">{job.level}</span>
-                  <p className="home-card-text">
-                    Learn how this role fits into the silicon pipeline and
-                    which skills matter most.
-                  </p>
-                  <button
-                    type="button"
-                    className="home-card-btn"
-                    onClick={() => {
-                      // Placeholder for future detail view / job modal
-                      // e.g. navigate(`/jobs/${job.id}`)
-                      console.log("View details for job:", job.title);
-                    }}
-                  >
-                    View details
-                  </button>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
 
-        {/* Employer section */}
-        <section
-          className="home-section home-section-alt"
-          aria-labelledby="employer-heading"
-        >
-          <div className="container home-split">
-            <div>
-              <header className="home-section-header">
-                <h2 id="employer-heading">Hire semiconductor talent</h2>
-                <p>
-                  Reach candidates who understand yield, devices, EDA, and
-                  high-reliability systems. Share roles with targeted visibility
-                  across universities and industry.
-                </p>
-              </header>
-              <ul className="home-list">
-                <li>Curated candidate pool across devices, design, and fab.</li>
-                <li>Structured role metadata for better matching.</li>
-                <li>Optional API hooks to sync with your existing ATS.</li>
-              </ul>
-              <button
-                type="button"
-                className="btn"
-                onClick={() => {
-                  // Placeholder for a future employer dashboard or post-job flow
-                  console.log("Post job CTA clicked");
-                }}
+            <div className="home-video-wrapper">
+              <video
+                id="talentvault-video"
+                className="home-video"
+                controls
+                preload="metadata"
               >
-                For employers
-              </button>
-            </div>
-            <div className="home-employer-panel">
-              <p className="home-employer-label">Example profiles:</p>
-              <ul className="home-list-small">
-                <li>Process integration engineer with 5+ years at advanced nodes.</li>
-                <li>Mixed-signal designer comfortable with SerDes and RF blocks.</li>
-                <li>EDA engineer with open-source contributions and Python skills.</li>
-              </ul>
+                <source src="/talentvault-intro.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
             </div>
           </div>
         </section>
 
-        {/* Professor section */}
-        <section className="home-section" aria-labelledby="professor-heading">
-          <div className="container home-split">
-            <div>
-              <header className="home-section-header">
-                <h2 id="professor-heading">Partner with professors & labs</h2>
-                <p>
-                  Align coursework, research, and labs with real industry
-                  pipelines. Surface students&apos; work directly to employers.
-                </p>
-              </header>
-              <ul className="home-list">
-                <li>Share course syllabi, lab projects, and capstone topics.</li>
-                <li>
-                  Access curated wafer, device, and reliability datasets for
-                  projects.
-                </li>
-                <li>Host virtual tech talks and office hours with employers.</li>
-              </ul>
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={() => {
-                  // Placeholder for future collaboration request flow
-                  console.log("Request collaboration CTA clicked");
-                }}
-              >
-                Request collaboration
-              </button>
-            </div>
-            <div className="home-professor-panel">
-              <p className="home-professor-caption">
-                Example collaboration kit:
-              </p>
-              <p className="home-card-text">
-                SPICE modeling labs, process-corner case studies, and
-                data-driven yield analysis projects that plug directly into
-                existing device or VLSI courses.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* Resources section */}
+        {/* Why use TalentVault section */}
         <section
-          className="home-section home-section-alt"
-          aria-labelledby="resources-heading"
+          className="home-section home-section-alt home-section-alt-light"
+          aria-labelledby="why-talentvault-heading"
         >
           <div className="container">
             <header className="home-section-header">
-              <h2 id="resources-heading">Resources & learning paths</h2>
-              <p>
-                Curated articles, whitepapers, and tutorials across design,
-                fab, modeling, and reliability.
+              <h2
+                id="why-talentvault-heading"
+                className="home-section-title-primary"
+              >
+                WHY USE TALENTVAULT
+              </h2>
+              <p className="home-section-subtitle">
+                Whether you&apos;re a talented professional or an industry
+                leader, TalentVault provides the tools and connections you need
+                to succeed.
               </p>
             </header>
-            <div className="home-card-grid">
-              {sampleResources.map((res) => (
-                <article key={res.id} className="home-card">
-                  <h3 className="home-card-title">{res.title}</h3>
-                  <span className="home-card-pill home-card-pill-muted">
-                    {res.topic}
-                  </span>
-                  <p className="home-card-text">{res.description}</p>
-                  <button
-                    type="button"
-                    className="home-card-link"
-                    onClick={() => {
-                      // Placeholder for opening full resource or external link
-                      console.log("Open resource:", res.title);
-                    }}
-                  >
-                    Explore resource
-                  </button>
-                </article>
-              ))}
+
+            <div className="home-value-grid">
+              <article className="home-value-card">
+                <div className="home-value-icon" aria-hidden="true">
+                  🔍
+                </div>
+                <div className="home-value-body">
+                  <h3 className="home-value-title">Smart Matching</h3>
+                  <p className="home-value-text">
+                    Where qualified candidates meet the right opportunities in
+                    the semiconductor industry.
+                  </p>
+                </div>
+              </article>
+
+              <article className="home-value-card">
+                <div className="home-value-icon" aria-hidden="true">
+                  📈
+                </div>
+                <div className="home-value-body">
+                  <h3 className="home-value-title">Industry Focus</h3>
+                  <p className="home-value-text">
+                    Built for semiconductors—where experts showcase their skills
+                    and companies find specialized talent.
+                  </p>
+                </div>
+              </article>
+
+              <article className="home-value-card">
+                <div className="home-value-icon" aria-hidden="true">
+                  ⚡
+                </div>
+                <div className="home-value-body">
+                  <h3 className="home-value-title">Efficient Process</h3>
+                  <p className="home-value-text">
+                    Job seekers get noticed faster. Employers hire smarter with
+                    pre-vetted candidates.
+                  </p>
+                </div>
+              </article>
             </div>
           </div>
         </section>
+
+        {/* Industry Facts section */}
+        <section
+          className="home-section home-facts-section"
+          aria-labelledby="industry-facts-heading"
+        >
+          <div className="container">
+            <header className="home-section-header">
+              <h2
+                id="industry-facts-heading"
+                className="home-facts-title"
+              >
+                INDUSTRY FACTS
+              </h2>
+            </header>
+
+            <div className="home-facts-grid">
+              <article className="home-facts-card">
+                <span className="home-facts-icon" aria-hidden="true">📊</span>
+                <h3 className="home-facts-card-title">Market Growth</h3>
+                <p className="home-facts-card-text">
+                  The global semiconductor market is projected to reach $1
+                  trillion by 2030, with a CAGR of 7%.
+                </p>
+              </article>
+
+              <article className="home-facts-card">
+                <span className="home-facts-icon" aria-hidden="true">📈</span>
+                <h3 className="home-facts-card-title">Job Demand</h3>
+                <p className="home-facts-card-text">
+                  Over 67,000 new semiconductor jobs are expected by 2030 in the
+                  United States alone.
+                </p>
+              </article>
+
+              <article className="home-facts-card">
+                <span className="home-facts-icon" aria-hidden="true">⚡</span>
+                <h3 className="home-facts-card-title">Innovation</h3>
+                <p className="home-facts-card-text">
+                  The semiconductor industry invests over $50 billion annually
+                  in research and development.
+                </p>
+              </article>
+            </div>
+          </div>
+        </section>
+
       </div>
 
       <footer className="home-footer">

@@ -1,8 +1,8 @@
 .layout-header {
-  background: var(--navy);
-  color: white;
+  background: var(--nav-bg);
+  color: var(--text);
   padding: 0.75rem 1rem;
-  border-bottom: 1px solid var(--sky-light);
+  border-bottom: 1px solid var(--border);
 }
 .layout-container {
   max-width: 1100px;
@@ -14,11 +14,11 @@
 .layout-brand {
   font-weight: 700;
   font-size: 1.25rem;
-  color: white;
+  color: var(--text);
   text-decoration: none;
 }
 .layout-brand:hover {
-  color: var(--sky);
+  color: var(--accent);
 }
 .layout-nav {
   display: flex;
@@ -26,25 +26,25 @@
   gap: 1rem;
 }
 .layout-link {
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--text);
   text-decoration: none;
   font-size: 0.9375rem;
 }
 .layout-link:hover,
 .layout-link.active {
-  color: var(--sky);
+  color: var(--accent);
 }
 .layout-btn {
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  color: white;
+  border: 1px solid var(--accent);
+  color: var(--text);
   padding: 0.4rem 0.75rem;
   border-radius: 6px;
   cursor: pointer;
   font-size: 0.875rem;
 }
 .layout-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--accent-soft);
 }
 .layout-main {
   flex: 1;
