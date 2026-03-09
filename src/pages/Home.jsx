@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 import "./Home.css";
 
@@ -53,139 +53,27 @@ const sampleResources = [
 ];
 
 export default function Home() {
-  const [navOpen, setNavOpen] = useState(false);
-  const candidateRef = useRef(null);
-  const employerRef = useRef(null);
-  const professorRef = useRef(null);
-  const resourcesRef = useRef(null);
-
-  const scrollTo = (ref) => {
-    if (ref && ref.current) {
-      ref.current.scrollIntoView({ behavior: "smooth", block: "start" });
-      setNavOpen(false);
-    }
-  };
-
   return (
     <div className="home">
-      <header className="home-header">
-        <nav
-          className="home-nav container"
-          aria-label="Main navigation"
-        >
-          <Link to="/" className="home-logo">
-            Talent Vault
-            <span className="home-logo-sub">Semiconductor</span>
-          </Link>
-
-          <button
-            type="button"
-            className="home-nav-toggle"
-            aria-label={navOpen ? "Close navigation" : "Open navigation"}
-            aria-expanded={navOpen}
-            aria-controls="primary-navigation"
-            onClick={() => setNavOpen((open) => !open)}
-          >
-            <span className="home-nav-toggle-line" />
-            <span className="home-nav-toggle-line" />
-            <span className="home-nav-toggle-line" />
-          </button>
-
-          <div
-            id="primary-navigation"
-            className={`home-nav-links ${navOpen ? "home-nav-links-open" : ""}`}
-          >
-            <button
-              type="button"
-              className="home-nav-link"
-              onClick={() => scrollTo(candidateRef)}
-            >
-              Candidate
-            </button>
-            <button
-              type="button"
-              className="home-nav-link"
-              onClick={() => scrollTo(employerRef)}
-            >
-              Employer
-            </button>
-            <button
-              type="button"
-              className="home-nav-link"
-              onClick={() => scrollTo(professorRef)}
-            >
-              Professor
-            </button>
-            <button
-              type="button"
-              className="home-nav-link"
-              onClick={() => scrollTo(resourcesRef)}
-            >
-              Resources
-            </button>
-            <Link
-              to="/login"
-              aria-label="Login"
-              className="home-login-btn"
-            >
-              Login
-            </Link>
-          </div>
-        </nav>
-      </header>
-
-      <main className="home-main">
+      <div className="home-main">
         {/* Hero */}
         <section className="home-hero">
-          <div className="container home-hero-grid">
+          <div className="home-hero-grid">
             <div className="home-hero-text">
+              <p className="home-hero-tagline">
+                Talent Vault
+              </p>
               <p className="home-hero-kicker">Semiconductor careers & resources</p>
               <h1 className="home-hero-title">
-                Build the future of chips,{" "}
+              Connecting semiconductor employers with top talent,{" "}
                 <span className="home-hero-title-accent">from lab to fab</span>.
               </h1>
-              <p className="home-hero-subtitle">
-                Talent Vault connects candidates, employers, and professors
-                across the semiconductor ecosystem with curated roles, labs,
-                and learning paths.
-              </p>
-              <div className="home-hero-actions">
-                <button
-                  type="button"
-                  className="btn"
-                  onClick={() => scrollTo(candidateRef)}
-                >
-                  Find Jobs
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={() => scrollTo(employerRef)}
-                >
-                  Post a Job
-                </button>
-              </div>
-            </div>
-            <div className="home-hero-visual" aria-hidden="true">
-              <div className="home-chip">
-                <div className="home-chip-inner">
-                  {Array.from({ length: 8 }).map((_, i) => (
-                    <div key={i} className="home-chip-line" />
-                  ))}
-                </div>
-                <div className="home-chip-pill home-chip-pill-top" />
-                <div className="home-chip-pill home-chip-pill-bottom" />
-              </div>
             </div>
           </div>
         </section>
 
         {/* Candidate section */}
-        <section
-          ref={candidateRef}
-          className="home-section"
-          aria-labelledby="candidate-heading"
-        >
+        <section className="home-section" aria-labelledby="candidate-heading">
           <div className="container">
             <header className="home-section-header">
               <h2 id="candidate-heading">Opportunities for candidates</h2>
@@ -225,7 +113,6 @@ export default function Home() {
 
         {/* Employer section */}
         <section
-          ref={employerRef}
           className="home-section home-section-alt"
           aria-labelledby="employer-heading"
         >
@@ -267,11 +154,7 @@ export default function Home() {
         </section>
 
         {/* Professor section */}
-        <section
-          ref={professorRef}
-          className="home-section"
-          aria-labelledby="professor-heading"
-        >
+        <section className="home-section" aria-labelledby="professor-heading">
           <div className="container home-split">
             <div>
               <header className="home-section-header">
@@ -315,7 +198,6 @@ export default function Home() {
 
         {/* Resources section */}
         <section
-          ref={resourcesRef}
           className="home-section home-section-alt"
           aria-labelledby="resources-heading"
         >
@@ -350,7 +232,7 @@ export default function Home() {
             </div>
           </div>
         </section>
-      </main>
+      </div>
 
       <footer className="home-footer">
         <div className="container home-footer-inner">
